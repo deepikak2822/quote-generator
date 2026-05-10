@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quote Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #e2c27d, #f5e6c8);
+      background-clip: text;
+      -webkit-background-clip: text;
+background-clip: text;
+    }
+
+    .subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 36px; font-weight: 300; }
+
+    .quote-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 680px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      margin-bottom: 32px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.4s ease;
+    }
+
+    .quote-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      color: #e2c27d;
+      opacity: 0.25;
+      position: absolute;
+      top: 10px; left: 28px;
+      line-height: 1;
+    }
+
+    .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.45rem;
+      line-height: 1.7;
+      color: #f1f5f9;
+      margin-bottom: 24px;
+    }
+
+    .quote-author { font-size: 0.95rem; font-weight: 600; color: #e2c27d; letter-spacing: 0.05em; }
+    .quote-category { margin-top: 6px; font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .controls {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 32px;
+      max-width: 680px; width: 100%;
+    }
+
+    select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white; padding: 12px 20px;
+      border-radius: 50px; font-size: 0.9rem;
+      outline: none; cursor: pointer;
+      flex: 1; min-width: 160px; appearance: none;
+    }
+    select option { background: #1a1a2e; color: white; }
+
+    .btn {
+      padding: 12px 28px; border-radius: 50px; border: none;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.03em;
+    }
+    .btn-primary { background: linear-gradient(135deg, #e2c27d, #c9a84c); color: #1a1a2e; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(226,194,125,0.35); }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); }
+
+    .section-title {
+      font-size: 1rem; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
+    }
+
+    .add-form {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 28px;
+      max-width: 680px; width: 100%; margin-bottom: 32px;
+    }
+
+    .add-form input {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white; padding: 12px 16px;
+      border-radius: 10px; font-size: 0.9rem;
+      margin-bottom: 12px; outline: none; transition: border 0.2s;
+    }
+    .add-form input::placeholder { color: #64748b; }
+    .add-form input:focus { border-color: #e2c27d; }
+
+    .form-row { display: flex; gap: 12px; }
+    .form-row input { flex: 1; }
+
+    .all-quotes { max-width: 680px; width: 100%; }
+
+    .quote-list-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 16px 20px;
+      margin-bottom: 10px; display: flex;
+      justify-content: space-between; align-items: flex-start; gap: 12px;
+    }
+    .q-text { font-style: italic; color: #e2e8f0; font-size: 0.9rem; flex: 1; line-height: 1.5; }
+    .q-meta { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
+    .q-meta span { color: #e2c27d; font-weight: 500; }
+
+    .del-btn {
+      background: none; border: none; color: #475569;
+      cursor: pointer; font-size: 1.1rem; padding: 2px 6px;
+      border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
+    }
+    .del-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+
+    .toggle-list {
+      background: none; border: none; color: #64748b;
+      cursor: pointer; font-size: 0.85rem;
+      text-decoration: underline; margin-bottom: 12px; display: block;
+    }
+
+    .fade { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: #22c55e; color: white;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 500;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <h1>✦ Quote Generator</h1>
+  <p class="subtitle">Find wisdom, get inspired, share your own</p>
+
+  <!-- Quote Display Card -->
+  <div class="quote-card" id="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text" id="quote-text">Click "New Quote" to get inspired...</div>
+    <div class="quote-author" id="quote-author"></div>
+    <div class="quote-category" id="quote-category"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <select id="category-filter">
+      <option value="All">All Categories</option>
+    </select>
+    <button class="btn btn-primary" onclick="loadRandom()">✦ New Quote</button>
+    <button class="btn btn-outline" onclick="copyQuote()">📋 Copy</button>
+  </div>
+
+  <!-- Add Quote Form -->
+  <div class="add-form">
+    <div class="section-title">➕ Add Your Quote</div>
+    <input type="text" id="new-text" placeholder="Enter quote text *" />
+    <div class="form-row">
+      <input type="text" id="new-author" placeholder="Author name" />
+      <input type="text" id="new-category" placeholder="Category (e.g. Wisdom)" />
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="addQuote()">Add Quote</button>
+  </div>
+
+  <!-- All Quotes -->
+  <div class="all-quotes">
+    <button class="toggle-list" onclick="toggleList()">📜 Show all quotes</button>
+    <div id="quote-list" style="display:none"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  let showingList = false;
+
+  async function loadCategories() {
+    const res = await fetch('/quotes/categories');
+    const cats = await res.json();
+    const sel = document.getElementById('category-filter');
+    sel.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+
+  async function loadRandom() {
+    const cat = document.getElementById('category-filter').value;
+    const url = cat && cat !== 'All' ? `/quotes/random?category=${cat}` : '/quotes/random';
+    try {
+      const res = await fetch(url);
+      if (!res.ok) { showToast('No quotes in this category!', '#f59e0b'); return; }
+      const q = await res.json();
+      document.getElementById('quote-text').textContent = q.text;
+      document.getElementById('quote-author').textContent = '— ' + q.author;
+      document.getElementById('quote-category').textContent = q.category;
+      document.getElementById('quote-card').classList.remove('fade');
+      void document.getElementById('quote-card').offsetWidth;
+      document.getElementById('quote-card').classList.add('fade');
+    } catch { showToast('Error loading quote', '#ef4444'); }
+  }
+
+  function copyQuote() {
+    const text = document.getElementById('quote-text').textContent;
+    const author = document.getElementById('quote-author').textContent;
+    navigator.clipboard.writeText(`"${text}" ${author}`).then(() => showToast('Copied to clipboard!'));
+  }
+
+  async function addQuote() {
+    const text = document.getElementById('new-text').value.trim();
+    if (!text) { showToast('Quote text is required!', '#f59e0b'); return; }
+    const body = {
+      text,
+      author: document.getElementById('new-author').value.trim() || 'Unknown',
+      category: document.getElementById('new-category').value.trim() || 'General'
+    };
+    const res = await fetch('/quotes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      document.getElementById('new-text').value = '';
+      document.getElementById('new-author').value = '';
+      document.getElementById('new-category').value = '';
+      showToast('Quote added!');
+      loadCategories();
+      if (showingList) loadAllQuotes();
+    }
+  }
+
+  async function loadAllQuotes() {
+    const res = await fetch('/quotes');
+    const quotes = await res.json();
+    document.getElementById('quote-list').innerHTML = quotes.map(q => `
+      <div class="quote-list-item">
+        <div>
+          <div class="q-text">"${escHtml(q.text)}"</div>
+          <div class="q-meta"><span>${escHtml(q.author)}</span> · ${escHtml(q.category)}</div>
+        </div>
+        <button class="del-btn" onclick="deleteQuote(${q.id})" title="Delete">🗑</button>
+      </div>
+    `).join('');
+  }
+
+  async function deleteQuote(id) {
+    await fetch(`/quotes/${id}`, { method: 'DELETE' });
+    showToast('Quote deleted', '#ef4444');
+    loadAllQuotes();
+    loadCategories();
+  }
+
+  function toggleList() {
+    showingList = !showingList;
+    const listEl = document.getElementById('quote-list');
+    const btn = document.querySelector('.toggle-list');
+    listEl.style.display = showingList ? 'block' : 'none';
+    btn.textContent = showingList ? '🙈 Hide all quotes' : '📜 Show all quotes';
+    if (showingList) loadAllQuotes();
+  }
+
+  function showToast(msg, color = '#22c55e') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = color;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  loadCategories();
+  loadRandom();
+</script>
+</body>
+</html>
